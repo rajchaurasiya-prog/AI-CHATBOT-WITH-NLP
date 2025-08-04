@@ -13,7 +13,7 @@ Description:
 
 This project demonstrates a basic AI Chatbot built using Natural Language Processing (NLP) techniques in Python. The chatbot uses simple machine learning methods to understand and respond to user inputs based on predefined intents. It can be thought of as a rule-based chatbot with machine learning features that classify input text into categories (called "intents") and then generate responses accordingly.
 
-🧠 Overview of the Chatbot
+Overview of the Chatbot
 The chatbot is trained to understand four main types of conversations:
 Greetings (e.g., "Hello", "Hi")
 Farewells (e.g., "Bye", "See you later")
@@ -21,7 +21,7 @@ Gratitude (e.g., "Thanks", "Thank you")
 Asking Identity (e.g., "Who are you?", "What is your name?")
 Each intent has associated patterns samples of user inputs) and responses (possible bot replies). When a user sends a message, the chatbot matches it with the most likely intent and responds with one of the predefined replies randomly.
 
-🔧 Breakdown of the Code
+ Breakdown of the Code
 Libraries Used:
 nltk (Natural Language Toolkit): Used for text tokenization and lemmatization.
 sklearn (Scikit-learn): Specifically, CountVectorizer for feature extraction and MultinomialNB for training a classifier.
