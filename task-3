@@ -1,0 +1,45 @@
+import nltk
+import random
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from nltk.stem import WordNetLemmatizer
+nltk.download('punkt')
+nltk.download('wordnet')
+intents = {
+  "intents": [
+    {"tag": "greeting", "patterns": ["Hi", "Hello", "Hey", "Howdy"], "responses": ["Hello!", "Hi there!", "Greetings!"]},
+    {"tag": "goodbye", "patterns": ["Bye", "See you later", "Goodbye"], "responses": ["Goodbye!", "Take care!", "See you soon!"]},
+    {"tag": "thanks", "patterns": ["Thanks", "Thank you", "Much appreciated"], "responses": ["You're welcome!", "No problem!", "Anytime!"]},
+    {"tag": "name", "patterns": ["What is your name?", "Who are you?"], "responses": ["I'm your chatbot!", "An AI assistant here to help."]}
+  ]
+}
+lemmatizer = WordNetLemmatizer()
+all_words = []
+tags = []
+xy = []
+for intent in intents["intents"]:
+    tag = intent["tag"]
+    tags.append(tag)
+    for pattern in intent["patterns"]:
+        tokens = nltk.word_tokenize(pattern)
+        tokens = [lemmatizer.lemmatize(w.lower()) for w in tokens]
+        all_words.extend(tokens)
+        xy.append((" ".join(tokens), tag))
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform([x[0] for x in xy])
+y = [tags.index(label) for _, label in xy]
+model = MultinomialNB()
+model.fit(X, y)
+def chatbot_response(msg):
+    msg_tokens = [lemmatizer.lemmatize(w.lower()) for w in nltk.word_tokenize(msg)]
+    msg_vec = vectorizer.transform([" ".join(msg_tokens)])
+    tag_id = model.predict(msg_vec)[0]
+    tag = tags[tag_id]
+    responses = next(item for item in intents["intents"] if item["tag"] == tag)["responses"]
+    return random.choice(responses)
+conversation = ["Hi there!", "What is your name?", "Thanks!", "Bye"]
+for user_input in conversation:
+    bot_reply = chatbot_response(user_input)
+    print(f"🧑 You: {user_input}")
+    print(f"🤖 Chatbot: {bot_reply}")
