@@ -42,3 +42,8 @@ Inference / Chat Loop:
 A list of user messages (conversation) is defined to simulate interaction.
 For each message, the chatbot tokenizes and lemmatizes the input, vectorizes it, and then uses the trained model to predict the intent.
 Based on the predicted tag, it selects a response randomly from the corresponding list.
+
+
+output:
+
+<img width="490" height="351" alt="Image" src="https://github.com/user-attachments/assets/3ea3886e-5eba-4ff6-8193-e679d1ffc671" />
