@@ -4,42 +4,62 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from nltk.stem import WordNetLemmatizer
+# Download necessary resources
 nltk.download('punkt')
 nltk.download('wordnet')
-intents = {
-  "intents": [
-    {"tag": "greeting", "patterns": ["Hi", "Hello", "Hey", "Howdy"], "responses": ["Hello!", "Hi there!", "Greetings!"]},
-    {"tag": "goodbye", "patterns": ["Bye", "See you later", "Goodbye"], "responses": ["Goodbye!", "Take care!", "See you soon!"]},
-    {"tag": "thanks", "patterns": ["Thanks", "Thank you", "Much appreciated"], "responses": ["You're welcome!", "No problem!", "Anytime!"]},
-    {"tag": "name", "patterns": ["What is your name?", "Who are you?"], "responses": ["I'm your chatbot!", "An AI assistant here to help."]}
-  ]
-}
+# Initialize
 lemmatizer = WordNetLemmatizer()
-all_words = []
+# Define intents
+intents = {
+    "intents": [
+        {"tag": "greeting",
+         "patterns": ["Hi", "Hello", "Hey", "What's up", "Howdy"],
+         "responses": ["Hello!", "Hi there!", "Greetings!"]},
+        {"tag": "goodbye",
+         "patterns": ["Bye", "See you", "Goodbye", "Later"],
+         "responses": ["Bye!", "See you later!", "Goodbye!"]},
+        {"tag": "thanks",
+         "patterns": ["Thanks", "Thank you", "I appreciate it"],
+         "responses": ["You're welcome!", "No problem!", "Anytime!"]},
+        {"tag": "name",
+         "patterns": ["What's your name?", "Who are you?"],
+         "responses": ["I'm a chatbot.", "My name is Chatbot AI."]},
+        {"tag": "age",
+         "patterns": ["How old are you?", "What's your age?"],
+         "responses": ["I am timeless!", "I don't have an age like humans."]}
+    ]
+}
+# Preprocessing
+all_patterns = []
 tags = []
-xy = []
-for intent in intents["intents"]:
-    tag = intent["tag"]
-    tags.append(tag)
-    for pattern in intent["patterns"]:
+for intent in intents['intents']:
+    for pattern in intent['patterns']:
         tokens = nltk.word_tokenize(pattern)
-        tokens = [lemmatizer.lemmatize(w.lower()) for w in tokens]
-        all_words.extend(tokens)
-        xy.append((" ".join(tokens), tag))
+        tokens = [lemmatizer.lemmatize(word.lower()) for word in tokens]
+        all_patterns.append(" ".join(tokens))
+        tags.append(intent['tag']
+# Vectorization
 vectorizer = CountVectorizer()
-X = vectorizer.fit_transform([x[0] for x in xy])
-y = [tags.index(label) for _, label in xy]
+X = vectorizer.fit_transform(all_patterns)
+y = np.array(tags)
+# Train model
 model = MultinomialNB()
 model.fit(X, y)
-def chatbot_response(msg):
-    msg_tokens = [lemmatizer.lemmatize(w.lower()) for w in nltk.word_tokenize(msg)]
-    msg_vec = vectorizer.transform([" ".join(msg_tokens)])
-    tag_id = model.predict(msg_vec)[0]
-    tag = tags[tag_id]
-    responses = next(item for item in intents["intents"] if item["tag"] == tag)["responses"]
-    return random.choice(responses)
-conversation = ["Hi there!", "What is your name?", "Thanks!", "Bye"]
-for user_input in conversation:
-    bot_reply = chatbot_response(user_input)
-    print(f"🧑 You: {user_input}")
-    print(f"🤖 Chatbot: {bot_reply}")
+# Response generator
+def chatbot_response(user_input):
+    tokens = nltk.word_tokenize(user_input)
+    tokens = [lemmatizer.lemmatize(word.lower()) for word in tokens]
+    input_data = vectorizer.transform([" ".join(tokens)])
+    predicted_tag = model.predict(input_data)[0]
+    for intent in intents['intents']:
+        if intent['tag'] == predicted_tag:
+            return random.choice(intent['responses'])
+# Chat loop
+print("🤖 Chatbot is ready! Type 'quit' to stop.")
+while True:
+    user_input = input("You: ")
+    if user_input.lower() == "quit":
+        print("🤖 Chatbot: Goodbye!")
+        break
+    response = chatbot_response(user_input)
+    print("🤖 Chatbot:", response)
